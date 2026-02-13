@@ -299,7 +299,7 @@ No dependency on `@stacks/connect` — the mock re-implements the provider inter
 
 ## Roadmap
 
-### v0.1 — MVP ✅
+### v0.1 — MVP ✅ (current: v0.1.1)
 
 Core library with full E2E flow working on mainnet against Zest Protocol.
 
@@ -310,7 +310,7 @@ Core library with full E2E flow working on mainnet against Zest Protocol.
 - [x] Multiple account derivation from a single mnemonic (`accountIndex`)
 - [x] Fee estimator with multiplier + max cap
 - [x] Mock provider: Node-side handler + browser-side injection script
-- [x] Wallet compatibility: `@stacks/connect` v8, Xverse (StacksProvider + XverseProviders)
+- [x] Xverse-only wallet: `StacksProvider` + `XverseProviders` (Leather/Hiro/WBIP removed in v0.1.1)
 - [x] Playwright fixtures: `testWithStacks()`
 - [x] Supported methods: `getAddresses`, `wallet_connect`, `stx_callContract`, `stx_transferStx`
 - [x] Post-conditions support in contract calls
@@ -321,6 +321,7 @@ Core library with full E2E flow working on mainnet against Zest Protocol.
 - [x] `wallet.lastTxId()` — access last broadcast transaction ID
 - [x] Unit test suite (29 tests)
 - [x] E2E reference: Zest Protocol supply flow on mainnet
+- [x] ESLint, commitlint, changesets, husky hooks (v0.1.1)
 
 **Deliverable**: Working package. Full E2E tests for Zest Protocol — connect wallet, supply STX, confirm on-chain.
 
@@ -354,7 +355,7 @@ Complete Bitcoin L1 + Stacks L2 coverage.
 Ship it.
 
 - API stabilization and breaking change review
-- Docs site (`apps/docs`) — API reference, getting started guide, examples
+- Docs site — API reference, getting started guide, examples
 - CI/CD: GitHub Actions for lint, typecheck, unit tests, publish
 - npm publish as `playstacks`
 - Performance: connection pooling, parallel test support
