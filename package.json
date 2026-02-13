@@ -1,16 +1,27 @@
 {
   "name": "playstacks-monorepo",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "pnpm --filter playstacks build",
     "test": "pnpm --filter playstacks test",
     "test:unit": "pnpm --filter playstacks test:unit",
     "test:e2e": "pnpm --filter zest-e2e test",
-    "lint": "pnpm -r run lint",
+    "lint": "eslint packages/*/src/**/*.ts examples/**/tests/**/*.ts",
     "typecheck": "pnpm -r run typecheck",
-    "clean": "pnpm -r run clean"
+    "clean": "pnpm -r run clean",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.8",
+    "@commitlint/cli": "^20.4.1",
+    "@commitlint/config-conventional": "^20.4.1",
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
+    "husky": "^9.1.7",
+    "typescript-eslint": "^8.55.0"
   }
 }

@@ -46,7 +46,7 @@ export function deriveWalletIdentity(
 
 /**
  * Derive a private key from a BIP-39 mnemonic phrase and account index.
- * Uses @stacks/wallet-sdk which follows the same derivation path as Leather/Xverse.
+ * Uses @stacks/wallet-sdk which follows the same derivation path as Xverse.
  *
  * Account index 0 = the first account you see in your wallet.
  */

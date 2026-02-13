@@ -47,7 +47,7 @@ export interface StacksFixtures {
  *
  * @example
  * ```ts
- * // With mnemonic (same seed phrase as your Leather/Xverse wallet)
+ * // With mnemonic (same seed phrase as your Xverse wallet)
  * const test = testWithStacks({
  *   mnemonic: process.env.TEST_MNEMONIC!,
  *   accountIndex: 0,

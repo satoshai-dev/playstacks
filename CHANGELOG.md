@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `testWithStacks()` — Playwright fixture factory with Stacks wallet support
-- Mock wallet provider injected via `page.addInitScript()` — covers `window.StacksProvider`, `window.LeatherProvider`, `window.HiroWalletProvider`, `window.XverseProviders`, and WBIP provider registry
+- Mock wallet provider injected via `page.addInitScript()` — installs `window.StacksProvider` and `window.XverseProviders`
 - Wallet methods: `getAddresses`, `stx_getAddresses`, `wallet_connect`, `stx_callContract`, `stx_transferStx`
 - `@stacks/connect` v8 compatibility — JSON-RPC envelope format, provider resolution via `XverseProviders.BitcoinProvider`
 - Fee estimation with configurable multiplier and max cap — two-pass flow for contract calls
@@ -29,5 +29,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Re-exports: `Cl`, `ClarityValue`, `cvToJSON`, `cvToString`, `cvToValue`, `expect`
 - Exported types: `PlaystacksConfig`, `StacksFixture`, `FeeConfig`, `ConfirmationConfig`, `NetworkOption`, `NetworkName`, `TxStatus`, `WalletInfo`, `ReadOnlyCallOptions`, `ConfirmationResult`
 - 29 unit tests (vitest)
-- E2E reference: Zest Protocol supply flow on mainnet (`apps/zest-e2e/`)
+- E2E reference: Zest Protocol supply flow on mainnet (`examples/zest-e2e/`)
 - ESM + CJS dual build via tsup with `.d.ts` declarations

@@ -76,30 +76,14 @@ export function getMockProviderScript(walletAddress: string, publicKey: string):
     disconnect: function() {},
   };
 
-  // @stacks/connect default
+  // @stacks/connect uses StacksProvider under the hood
   Object.defineProperty(window, 'StacksProvider', {
     value: mockProvider,
     writable: false,
     configurable: true,
   });
 
-  // Leather wallet direct API
-  Object.defineProperty(window, 'LeatherProvider', {
-    value: mockProvider,
-    writable: false,
-    configurable: true,
-  });
-
-  // Legacy Hiro wallet
-  Object.defineProperty(window, 'HiroWalletProvider', {
-    value: mockProvider,
-    writable: false,
-    configurable: true,
-  });
-
   // Xverse — needs BOTH StacksProvider and BitcoinProvider
-  // @stacks/connect resolves provider via: window.XverseProviders.BitcoinProvider
-  // Zest's useXverse checks: window.XverseProviders.StacksProvider.getProductInfo()
   Object.defineProperty(window, 'XverseProviders', {
     value: {
       StacksProvider: mockProvider,
@@ -109,26 +93,6 @@ export function getMockProviderScript(walletAddress: string, publicKey: string):
     configurable: true,
   });
 
-  // WBIP provider registry for @stacks/connect v8+ (expects array, not Map)
-  if (!window.wbip_providers) {
-    window.wbip_providers = [];
-  }
-  window.wbip_providers.push({
-    id: 'LeatherProvider',
-    name: 'Playstacks Mock (Leather)',
-    icon: '',
-    webUrl: '',
-  });
-  window.wbip_providers.push({
-    id: 'XverseProviders.BitcoinProvider',
-    name: 'Playstacks Mock (Xverse)',
-    icon: '',
-    webUrl: '',
-  });
-
-  // Dispatch events that dApps listen for to detect wallet availability
-  window.dispatchEvent(new CustomEvent('leather:ready'));
-  window.dispatchEvent(new CustomEvent('hiro:ready'));
   window.dispatchEvent(new CustomEvent('stacksprovider:ready'));
 
   console.log('[Playstacks] Mock wallet provider injected — address:', WALLET_ADDRESS);
