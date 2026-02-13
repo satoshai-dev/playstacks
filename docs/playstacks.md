@@ -122,14 +122,15 @@ test('shows error when user rejects transaction', async ({ page, stacks }) => {
 
 | Method | Description | Status |
 |---|---|---|
-| `getAddresses` | Returns STX address + public key | MVP |
-| `stx_callContract` | Sign + broadcast contract call | MVP |
-| `stx_transferStx` | Sign + broadcast STX transfer | MVP |
+| `getAddresses` / `stx_getAddresses` | Returns STX address + public key | ✅ v0.1 |
+| `wallet_connect` | Xverse-compatible connect flow | ✅ v0.1 |
+| `stx_callContract` | Sign + broadcast contract call | ✅ v0.1 |
+| `stx_transferStx` | Sign + broadcast STX transfer | ✅ v0.1 |
 | `stx_signTransaction` | Sign raw transaction hex | v0.2 |
 | `stx_signMessage` | Sign plaintext message | v0.2 |
 | `stx_signStructuredMessage` | Sign typed/structured message (SIP-018) | v0.2 |
 | `stx_deployContract` | Sign + broadcast contract deployment | v0.2 |
-| `signPsbt` | Bitcoin PSBT signing | v0.4 |
+| `signPsbt` | Bitcoin PSBT signing | v0.3 |
 
 ### Wallet compatibility
 
@@ -139,7 +140,8 @@ The mock installs all provider globals that Stacks dApps check for:
 - `window.LeatherProvider` — used by Leather wallet's direct API
 - `window.HiroWalletProvider` — legacy Hiro wallet
 - `window.XverseProviders.StacksProvider` — used by Xverse/Sats Connect
-- WBIP provider registry — for `@stacks/connect` v8+
+- `window.XverseProviders.BitcoinProvider` — used by `@stacks/connect-ui` provider resolution
+- WBIP provider registry (array) — for `@stacks/connect` v8+
 
 One mock covers every code path. Any dApp that works with Leather or Xverse works with Playstacks.
 
@@ -249,28 +251,32 @@ test('example', async ({ page, stacks }) => {
 
 ```
 playstacks/
-├── src/
-│   ├── index.ts                       # Public API exports
-│   ├── config.ts                      # PlaystacksConfig type, defaults, resolver
-│   ├── fixtures.ts                    # testWithStacks = test.extend<StacksFixtures>()
-│   ├── wallet/
-│   │   ├── mock-provider.ts           # Node-side handler: signs, estimates fees, broadcasts
-│   │   ├── mock-provider-script.ts    # Browser-side injection script (self-contained JS)
-│   │   ├── key-manager.ts            # Private key / mnemonic → address + publicKey
-│   │   └── types.ts                   # Wallet-related types
-│   ├── network/
-│   │   ├── network-config.ts          # Resolves network name → StacksNetwork object
-│   │   └── api-client.ts             # fetchBalance, fetchNonce, fetchAccountInfo
-│   ├── fees/
-│   │   └── fee-estimator.ts           # Two-pass estimation with multiplier + cap
-│   ├── tx/
-│   │   ├── broadcaster.ts            # broadcastTransaction wrapper with error handling
-│   │   └── confirmation.ts           # Polls /extended/v1/tx/{txid} until confirmed
-│   └── helpers/
-│       └── read-only.ts              # callReadOnly for on-chain state verification
-├── tests/
-│   ├── unit/                          # Vitest unit tests for each module
-│   └── e2e/                           # Playwright smoke tests against testnet/devnet
+├── packages/playstacks/              # Core library
+│   ├── src/
+│   │   ├── index.ts                  # Public API exports
+│   │   ├── config.ts                 # PlaystacksConfig type, defaults, resolver
+│   │   ├── fixtures.ts               # testWithStacks = test.extend<StacksFixtures>()
+│   │   ├── wallet/
+│   │   │   ├── mock-provider.ts      # Node-side handler: signs, estimates fees, broadcasts
+│   │   │   ├── mock-provider-script.ts # Browser-side injection script (self-contained JS)
+│   │   │   ├── key-manager.ts        # Private key / mnemonic → address + publicKey
+│   │   │   └── types.ts              # Wallet-related types
+│   │   ├── network/
+│   │   │   ├── network-config.ts     # Resolves network name → StacksNetwork object
+│   │   │   └── api-client.ts         # fetchBalance, fetchNonce, fetchAccountInfo
+│   │   ├── fees/
+│   │   │   └── fee-estimator.ts      # Two-pass estimation with multiplier + cap
+│   │   ├── tx/
+│   │   │   ├── broadcaster.ts        # broadcastTransaction wrapper with error handling
+│   │   │   └── confirmation.ts       # Polls /extended/v1/tx/{txid} until confirmed
+│   │   └── helpers/
+│   │       └── read-only.ts          # callReadOnly for on-chain state verification
+│   └── tests/unit/                   # Vitest unit tests (29 tests)
+├── apps/zest-e2e/               # E2E reference implementation
+│   ├── tests/
+│   │   ├── supply.spec.ts            # Full supply flow: connect → supply → confirm
+│   │   └── rejection.spec.ts         # Wallet rejection testing
+│   └── playwright.config.ts
 ├── package.json
 ├── tsconfig.json
 ├── tsup.config.ts                     # Build: ESM + CJS + .d.ts
@@ -297,50 +303,45 @@ No dependency on `@stacks/connect` — the mock re-implements the provider inter
 
 ## Roadmap
 
-### v0.1 — MVP (Week 1-2)
+### v0.1 — MVP ✅
 
-Core functionality: inject mock, sign transactions, broadcast.
+Core library with full E2E flow working on mainnet against Zest Protocol.
 
-- Project scaffolding (pnpm, TypeScript, tsup, vitest)
-- Config + network resolution (mainnet / testnet / devnet / custom URL)
-- Key manager: private key hex → STX address + public key
-- Fee estimator with multiplier + max cap
-- Mock provider: Node-side handler + browser-side injection script
-- Playwright fixtures: `testWithStacks()`
-- Supported methods: `getAddresses`, `stx_callContract`, `stx_transferStx`
-- Smoke test against Stacks testnet
+- [x] Project scaffolding (pnpm, TypeScript, tsup, vitest)
+- [x] Config + network resolution (mainnet / testnet / devnet / custom URL)
+- [x] Key manager: private key hex → STX address + public key
+- [x] Mnemonic / seed phrase support via `@stacks/wallet-sdk`
+- [x] Multiple account derivation from a single mnemonic (`accountIndex`)
+- [x] Fee estimator with multiplier + max cap
+- [x] Mock provider: Node-side handler + browser-side injection script
+- [x] Wallet compatibility: `@stacks/connect` v8, Leather, Xverse, WBIP provider registry
+- [x] Playwright fixtures: `testWithStacks()`
+- [x] Supported methods: `getAddresses`, `wallet_connect`, `stx_callContract`, `stx_transferStx`
+- [x] Post-conditions support in contract calls
+- [x] `waitForTx()` — poll for tx confirmation with configurable timeout
+- [x] `callReadOnly()` — read contract state for on-chain assertions
+- [x] `getBalance()`, `getNonce()` — account state helpers
+- [x] `wallet.rejectNext()` — test wallet rejection flows
+- [x] `wallet.lastTxId()` — access last broadcast transaction ID
+- [x] Unit test suite (29 tests)
+- [x] E2E reference: Zest Protocol supply flow on mainnet
 
-**Deliverable**: Working npm package. Can E2E test any Stacks dApp's core flows.
+**Deliverable**: Working package. Full E2E tests for Zest Protocol — connect wallet, supply STX, confirm on-chain.
 
-### v0.2 — Complete Signing + On-Chain Assertions (Week 3)
+### v0.2 — Complete Signing (Next)
 
-Full method coverage and verification helpers.
+Full method coverage.
 
 - `stx_signTransaction` — sign arbitrary transaction hex
 - `stx_signMessage` — sign plaintext messages
 - `stx_signStructuredMessage` — sign SIP-018 structured messages
 - `stx_deployContract` — sign + broadcast contract deployments
-- `waitForTx()` — poll for tx confirmation with configurable timeout
-- `callReadOnly()` — read contract state for on-chain assertions
-- `getBalance()`, `getNonce()` — account state helpers
-- `wallet.rejectNext()` — test wallet rejection flows
-- Unit test suite for all modules
-
-**Deliverable**: Full Stacks signing coverage. Tests can assert on-chain state.
-
-### v0.3 — Mnemonic + Multi-Account (Week 4)
-
-Production-grade key management.
-
-- Mnemonic / seed phrase support via `@stacks/wallet-sdk`
-- Multiple account derivation from a single mnemonic (`accountIndex`)
-- Account switching mid-test (test multi-user scenarios)
-- Post-conditions support in contract calls
 - Automatic nonce management for sequential transactions in a single test
+- Account switching mid-test (test multi-user scenarios)
 
-**Deliverable**: Use any wallet's seed phrase. Test multi-user flows.
+**Deliverable**: Full Stacks signing coverage.
 
-### v0.4 — Bitcoin / sBTC Support (Week 5-6)
+### v0.3 — Bitcoin / sBTC Support
 
 Complete Bitcoin L1 + Stacks L2 coverage.
 
@@ -352,7 +353,7 @@ Complete Bitcoin L1 + Stacks L2 coverage.
 
 **Deliverable**: Test flows that span both Bitcoin and Stacks (sBTC deposits, taproot vaults).
 
-### v1.0 — Stable Release (Week 7-8)
+### v1.0 — Stable Release
 
 Ship it.
 
@@ -360,7 +361,6 @@ Ship it.
 - Comprehensive documentation: README, API reference, migration guide
 - CI/CD: GitHub Actions for lint, typecheck, unit tests, publish
 - npm publish as `playstacks`
-- Example repository: full E2E test suite for Zest Protocol
 - Performance: connection pooling, parallel test support
 - Community: announce on Stacks Discord, forum post, Twitter thread
 

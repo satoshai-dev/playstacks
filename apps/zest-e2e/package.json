@@ -1,0 +1,16 @@
+{
+  "name": "zest-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "playstacks": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0",
+    "@types/node": "^25.2.3",
+    "dotenv": "^16.4.0"
+  }
+}

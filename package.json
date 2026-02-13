@@ -1,0 +1,16 @@
+{
+  "name": "playstacks-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "pnpm --filter playstacks build",
+    "test": "pnpm --filter playstacks test",
+    "test:unit": "pnpm --filter playstacks test:unit",
+    "test:e2e": "pnpm --filter zest-e2e test",
+    "lint": "pnpm -r run lint",
+    "typecheck": "pnpm -r run typecheck",
+    "clean": "pnpm -r run clean"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -34,5 +34,8 @@ Thumbs.db
 .cache-synpress/
 .turbo/
 
+# Playwright MCP
+.playwright-mcp/
+
 # Claude
 .claude/
