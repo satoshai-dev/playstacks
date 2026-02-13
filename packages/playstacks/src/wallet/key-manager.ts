@@ -1,6 +1,7 @@
 import {
   privateKeyToPublic,
   publicKeyToAddress,
+  publicKeyToHex,
   AddressVersion,
 } from '@stacks/transactions';
 import { generateWallet, generateNewAccount } from '@stacks/wallet-sdk';
@@ -27,13 +28,14 @@ export function deriveWalletIdentity(
   isMainnet: boolean
 ): WalletIdentity {
   const normalized = normalizePrivateKey(privateKeyHex);
-  const publicKey = privateKeyToPublic(normalized);
+  const publicKeyBytes = privateKeyToPublic(normalized);
+  const publicKey = publicKeyToHex(publicKeyBytes);
 
   const addressVersion = isMainnet
     ? AddressVersion.MainnetSingleSig
     : AddressVersion.TestnetSingleSig;
 
-  const address = publicKeyToAddress(addressVersion, publicKey);
+  const address = publicKeyToAddress(addressVersion, publicKeyBytes);
 
   return {
     address,
