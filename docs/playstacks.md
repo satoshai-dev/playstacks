@@ -193,21 +193,20 @@ export default defineConfig({
 
 ## Fee Management
 
-Fee estimation on Stacks has historically been broken. The core problem is **fees being wildly overestimated** — not too low, too high. The Stacks fee estimator doesn't weight fee rates by transaction size, so small STX transfers with high per-byte rates skew the estimates upward. Outlier blocks with inflated fee rates compound the problem via exponential windowing. The result: the `/v2/fees/transaction` endpoint regularly suggests fees of 50-100+ STX for normal contract calls.
+Playstacks handles fee estimation so tests don't overpay or get stuck:
 
-Hiro patched the worst of it in Stacks 2.05 (size-weighted rates, 5-block window, dummy fills for empty block space), but the estimates are still unreliable enough that wallets add their own heuristics on top.
+| Strategy | How it works |
+|---|---|
+| **STX transfers** | `GET /v2/fees/transfer` fee rate × estimated tx size (~180 bytes) |
+| **Contract calls** | Two-pass: build unsigned tx → `POST /v2/fees/transaction` → use middle tier estimate |
+| **Max cap** | Hard cap at `maxFee` (default 500,000 microstacks / 0.5 STX) |
+| **Multiplier** | Scales the estimate by `multiplier` (default 1.0x) |
+| **Fixed override** | Set `fee.fixed` to skip estimation entirely |
 
-Playstacks takes control of fees so your tests don't overpay or fail:
+Contract call flow:
 
-1. **For STX transfers**: Hits `GET /v2/fees/transfer` for the fee rate, multiplies by estimated tx size (~180 bytes)
-2. **For contract calls**: Builds the transaction unsigned first, then hits `/v2/fees/transaction` with the serialized payload. Uses the middle tier estimate.
-3. **Caps at maxFee** (default 0.5 STX / 500,000 microstacks) — the main guard against the overestimation problem. Prevents paying 50 STX for a contract call.
-4. **Multiplier** (default 1.0x) — unlike other chains where you bump fees up, on Stacks you usually want to leave it at 1x or even reduce. Configurable per test suite.
-5. **Fixed fee override**: Set `fee.fixed` to bypass estimation entirely — useful when you know the right fee for your contract calls.
-
-The two-pass flow for contract calls:
 ```
-Build unsigned tx (fee=0) → Estimate fee → Cap at maxFee → Set fee → Sign → Broadcast
+Build unsigned tx (fee=0) → Estimate fee → Apply multiplier → Cap at maxFee → Sign → Broadcast
 ```
 
 ---
