@@ -29,7 +29,7 @@ Nobody can test the complete path: **User clicks button → wallet signs transac
 
 Playstacks injects a mock wallet provider into the browser that **signs real transactions with real private keys** using `@stacks/transactions`. No browser extension needed. No popup automation. No fragile UI selectors.
 
-The mock implements the same `.request(method, params)` JSON-RPC interface that both Leather and Xverse use, so it works with any dApp built on `@stacks/connect`, Leather's `LeatherProvider`, or Xverse's Sats Connect.
+The mock implements the same `.request(method, params)` JSON-RPC interface that Xverse uses, so it works with any dApp built on `@stacks/connect` or Xverse's Sats Connect.
 
 The library also handles **fee estimation** with a configurable multiplier, so tests don't fail because of stuck transactions.
 
@@ -102,8 +102,8 @@ test('shows error when user rejects transaction', async ({ page, stacks }) => {
 │  │  Browser (dApp under test)                   │   │
 │  │                                              │   │
 │  │  window.StacksProvider    ─┐                 │   │
-│  │  window.LeatherProvider   ─┤─→ Mock proxy    │   │
-│  │  window.XverseProviders   ─┘   that forwards │   │
+│  │  window.XverseProviders   ─┘─→ Mock proxy    │   │
+│  │                                that forwards │   │
 │  │                                .request()    │   │
 │  │                                calls to Node │   │
 │  └──────────────────────────────────────────────┘   │
@@ -111,7 +111,7 @@ test('shows error when user rejects transaction', async ({ page, stacks }) => {
 ```
 
 1. **`page.exposeFunction('__playstacksRequest', handler)`** creates a bridge between browser and Node.js
-2. **`page.addInitScript()`** injects a script that installs `window.StacksProvider`, `window.LeatherProvider`, and `window.XverseProviders` — all pointing to a thin proxy
+2. **`page.addInitScript()`** injects a script that installs `window.StacksProvider` and `window.XverseProviders` — both pointing to a thin proxy
 3. When the dApp calls `.request(method, params)`, the proxy serializes it and sends it to the Node-side handler
 4. The handler uses `@stacks/transactions` to **build, sign, and broadcast** a real transaction
 5. The txid is returned to the dApp, which updates its UI normally
@@ -134,16 +134,13 @@ test('shows error when user rejects transaction', async ({ page, stacks }) => {
 
 ### Wallet compatibility
 
-The mock installs all provider globals that Stacks dApps check for:
+The mock installs the provider globals needed for Xverse:
 
 - `window.StacksProvider` — used by `@stacks/connect`
-- `window.LeatherProvider` — used by Leather wallet's direct API
-- `window.HiroWalletProvider` — legacy Hiro wallet
 - `window.XverseProviders.StacksProvider` — used by Xverse/Sats Connect
 - `window.XverseProviders.BitcoinProvider` — used by `@stacks/connect-ui` provider resolution
-- WBIP provider registry (array) — for `@stacks/connect` v8+
 
-One mock covers every code path. Any dApp that works with Leather or Xverse works with Playstacks.
+Any dApp that works with Xverse works with Playstacks.
 
 ---
 
@@ -272,7 +269,7 @@ playstacks/
 │   │   └── helpers/
 │   │       └── read-only.ts          # callReadOnly for on-chain state verification
 │   └── tests/unit/                   # Vitest unit tests (29 tests)
-├── apps/zest-e2e/               # E2E reference implementation
+├── examples/zest-e2e/           # E2E reference implementation
 │   ├── tests/
 │   │   ├── supply.spec.ts            # Full supply flow: connect → supply → confirm
 │   │   └── rejection.spec.ts         # Wallet rejection testing
@@ -314,7 +311,7 @@ Core library with full E2E flow working on mainnet against Zest Protocol.
 - [x] Multiple account derivation from a single mnemonic (`accountIndex`)
 - [x] Fee estimator with multiplier + max cap
 - [x] Mock provider: Node-side handler + browser-side injection script
-- [x] Wallet compatibility: `@stacks/connect` v8, Leather, Xverse, WBIP provider registry
+- [x] Wallet compatibility: `@stacks/connect` v8, Xverse (StacksProvider + XverseProviders)
 - [x] Playwright fixtures: `testWithStacks()`
 - [x] Supported methods: `getAddresses`, `wallet_connect`, `stx_callContract`, `stx_transferStx`
 - [x] Post-conditions support in contract calls
@@ -358,13 +355,13 @@ Complete Bitcoin L1 + Stacks L2 coverage.
 Ship it.
 
 - API stabilization and breaking change review
-- Comprehensive documentation: README, API reference, migration guide
+- Docs site (`apps/docs`) — API reference, getting started guide, examples
 - CI/CD: GitHub Actions for lint, typecheck, unit tests, publish
 - npm publish as `playstacks`
 - Performance: connection pooling, parallel test support
 - Community: announce on Stacks Discord, forum post, Twitter thread
 
-**Deliverable**: Published package on npm. Zest Protocol using it in production. Documentation and examples for ecosystem adoption.
+**Deliverable**: Published package on npm. Docs site live. Zest Protocol using it in production.
 
 ---
 

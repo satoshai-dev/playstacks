@@ -1,6 +1,6 @@
 {
   "name": "playstacks",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "E2E testing SDK for Stacks blockchain dApps. Playwright + real transactions.",
   "license": "MIT",
   "type": "module",
@@ -60,7 +60,6 @@
     "bitcoin",
     "clarity",
     "wallet",
-    "leather",
     "xverse"
   ],
   "repository": {

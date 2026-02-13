@@ -18,12 +18,12 @@ describe('getMockProviderScript', () => {
     expect(script).toContain('deadbeef');
   });
 
-  it('installs StacksProvider, LeatherProvider, XverseProviders', () => {
+  it('installs StacksProvider and XverseProviders', () => {
     const script = getMockProviderScript('SP123', '0x00');
     expect(script).toContain('StacksProvider');
-    expect(script).toContain('LeatherProvider');
     expect(script).toContain('XverseProviders');
-    expect(script).toContain('HiroWalletProvider');
+    expect(script).not.toContain('LeatherProvider');
+    expect(script).not.toContain('HiroWalletProvider');
   });
 
   it('is a self-contained IIFE', () => {

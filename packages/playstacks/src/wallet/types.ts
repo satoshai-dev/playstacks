@@ -1,4 +1,4 @@
-/** JSON-RPC request shape used by Leather/Xverse/StacksProvider */
+/** JSON-RPC request shape used by Xverse/StacksProvider */
 export interface WalletRpcRequest {
   method: string;
   params?: Record<string, unknown>;
@@ -18,11 +18,11 @@ export interface WalletRpcResponse {
 export interface AddressInfo {
   address: string;
   publicKey: string;
-  /** Purpose for WBIP/xverse compatibility */
+  /** Purpose for Xverse compatibility */
   purpose: string;
   /** Address type for Zest's extractAndValidateStacksAddress */
   addressType: string;
-  /** Symbol for Leather compatibility */
+  /** Symbol for address validation (STX) */
   symbol?: string;
 }
 
