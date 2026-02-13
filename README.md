@@ -90,6 +90,7 @@ const test = testWithStacks({
 
 ## Documentation
 
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — dev workflow, changesets, commit conventions, releasing
 - [`docs/understanding-playstacks.md`](docs/understanding-playstacks.md) — how it works, architecture, why it's easy
 - [`docs/playstacks.md`](docs/playstacks.md) — full implementation plan and roadmap
 - [`examples/zest-e2e/`](examples/zest-e2e/) — reference E2E test suite (Zest Protocol)
