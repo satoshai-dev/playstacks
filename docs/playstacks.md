@@ -361,6 +361,3 @@ Ship it.
 - Community: announce on Stacks Discord, forum post, Twitter thread
 
 **Deliverable**: Published package on npm. Docs site live. Zest Protocol using it in production.
-
----
-
