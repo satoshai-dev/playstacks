@@ -14,7 +14,7 @@
     "clean": "pnpm -r run clean",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "pnpm build && changeset publish",
+    "release": "pnpm build && changeset publish --provenance",
     "prepare": "husky"
   },
   "engines": {
