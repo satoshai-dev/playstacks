@@ -3,13 +3,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm --filter playstacks build",
-    "test": "pnpm --filter playstacks test",
-    "test:unit": "pnpm --filter playstacks test:unit",
+    "build": "pnpm --filter @satoshai/playstacks build",
+    "test": "pnpm --filter @satoshai/playstacks test",
+    "test:unit": "pnpm --filter @satoshai/playstacks test:unit",
     "test:e2e": "pnpm --filter zest-e2e test",
     "lint": "eslint packages/*/src/**/*.ts examples/**/tests/**/*.ts",
     "typecheck": "pnpm -r run typecheck",
     "clean": "pnpm -r run clean",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "pnpm build && changeset publish",
     "prepare": "husky"
   },
   "engines": {

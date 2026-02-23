@@ -6,7 +6,7 @@
  *
  * Setup: same as supply.spec.ts — needs TEST_MNEMONIC in .env
  */
-import { testWithStacks, expect } from 'playstacks';
+import { testWithStacks, expect } from '@satoshai/playstacks';
 
 const test = testWithStacks({
   mnemonic: process.env.TEST_MNEMONIC!,

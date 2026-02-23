@@ -32,7 +32,7 @@ importers:
 
   examples/zest-e2e:
     dependencies:
-      playstacks:
+      '@satoshai/playstacks':
         specifier: workspace:*
         version: link:../../packages/playstacks
     devDependencies:

@@ -6,7 +6,7 @@
     "test": "playwright test"
   },
   "dependencies": {
-    "playstacks": "workspace:*"
+    "@satoshai/playstacks": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "^1.50.0",
