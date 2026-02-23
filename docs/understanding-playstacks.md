@@ -39,7 +39,7 @@ When the dApp calls `window.StacksProvider.request('stx_callContract', ...)`, th
 ### 1. One function sets up everything
 
 ```typescript
-import { testWithStacks, expect } from 'playstacks';
+import { testWithStacks, expect } from '@satoshai/playstacks';
 
 const test = testWithStacks({
   mnemonic: process.env.TEST_MNEMONIC!,
@@ -122,6 +122,7 @@ packages/playstacks/src/
 │   ├── mock-provider.ts       # Node-side handler (signs, broadcasts)
 │   ├── mock-provider-script.ts # Browser-side injection (JSON-RPC proxy)
 │   ├── key-manager.ts         # Private key → address + publicKey
+│   ├── message-hash.ts        # Stacks plaintext message hashing
 │   └── types.ts
 ├── network/
 │   ├── network-config.ts      # Network name → API URL

@@ -4,14 +4,19 @@
 
 Playwright-based. Injects a mock Xverse wallet provider into the browser, signs real transactions with `@stacks/transactions`, broadcasts to any network. No browser extension needed.
 
+### Demo: Supply STX on Zest Protocol (mainnet)
+
+<!-- To display on GitHub: drag docs/assets/zest-supply-demo.mp4 into a GitHub issue, then paste the URL below -->
+<video src="docs/assets/zest-supply-demo.mp4" autoplay loop muted playsinline></video>
+
 ## Quick Start
 
 ```bash
-pnpm add -D playstacks @playwright/test
+pnpm add -D @satoshai/playstacks @playwright/test
 ```
 
 ```typescript
-import { testWithStacks, expect } from 'playstacks';
+import { testWithStacks, expect } from '@satoshai/playstacks';
 
 const test = testWithStacks({
   mnemonic: process.env.TEST_MNEMONIC!,
@@ -92,12 +97,14 @@ const test = testWithStacks({
 
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — dev workflow, changesets, commit conventions, releasing
 - [`docs/understanding-playstacks.md`](docs/understanding-playstacks.md) — how it works, architecture, why it's easy
-- [`docs/playstacks.md`](docs/playstacks.md) — full implementation plan and roadmap
-- [`examples/zest-e2e/`](examples/zest-e2e/) — reference E2E test suite (Zest Protocol)
+- [`docs/playstacks.md`](docs/playstacks.md) — full technical spec and roadmap
+- [`examples/zest/`](examples/zest/) — Zest Protocol supply + withdraw (mainnet)
+- [`examples/satoshai/`](examples/satoshai/) — SatoshAI login flow (mainnet)
+- [`apps/test-dapp/`](apps/test-dapp/) — self-contained test dApp exercising all wallet methods
 
 ## Status
 
-Under active development. First production user: [Zest Protocol](https://zestprotocol.com).
+Under active development. Production users: [Zest Protocol](https://zestprotocol.com), [SatoshAI](https://app.satoshai.io).
 
 ## License
 

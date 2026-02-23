@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["zest-e2e"]
+  "ignore": ["zest", "satoshai", "test-dapp"]
 }

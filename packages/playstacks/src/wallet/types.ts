@@ -62,6 +62,39 @@ export interface WalletIdentity {
   privateKey: string;
 }
 
+/** Params for stx_signMessage */
+export interface SignMessageParams {
+  message: string;
+}
+
+/** Result for stx_signMessage */
+export interface SignMessageResult {
+  signature: string;
+  publicKey: string;
+}
+
+/** Params for stx_signStructuredMessage (SIP-018) */
+export interface SignStructuredMessageParams {
+  message: string; // hex-encoded ClarityValue
+  domain: string; // hex-encoded ClarityValue
+}
+
+/** Result for stx_signStructuredMessage */
+export interface SignStructuredMessageResult {
+  signature: string;
+  publicKey: string;
+}
+
+/** Params for stx_signTransaction */
+export interface SignTransactionParams {
+  transaction: string; // hex-encoded serialized tx
+}
+
+/** Result for stx_signTransaction */
+export interface SignTransactionResult {
+  transaction: string; // hex-encoded signed tx
+}
+
 /** Public wallet info exposed to tests */
 export interface WalletInfo {
   address: string;
