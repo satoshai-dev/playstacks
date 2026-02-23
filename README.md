@@ -1,5 +1,9 @@
 # Playstacks
 
+[![npm version](https://img.shields.io/npm/v/@satoshai/playstacks)](https://www.npmjs.com/package/@satoshai/playstacks)
+[![CI](https://github.com/satoshai-dev/playstacks/actions/workflows/ci.yml/badge.svg)](https://github.com/satoshai-dev/playstacks/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 **E2E testing SDK for Stacks dApps.**
 
 Playwright-based. Injects a mock Xverse wallet provider into the browser, signs real transactions with `@stacks/transactions`, broadcasts to any network. No browser extension needed.
