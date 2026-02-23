@@ -6,13 +6,8 @@ config({ path: new URL('.env', import.meta.url).pathname });
 
 export default defineConfig({
   testDir: './tests',
-  timeout: 300_000, // 5 min — enough for broadcast + on-chain confirmation
+  timeout: 30_000,
   use: {
     headless: false,
-    viewport: { width: 1440, height: 900 },
-    // Ensure storage/cookies work — needed for wallet connection state
-    storageState: undefined,
-    permissions: [],
-    javaScriptEnabled: true,
   },
 });

@@ -150,6 +150,18 @@ Get STX balance in microstacks. Defaults to the wallet address.
 
 Get account nonce. Defaults to the wallet address.
 
+## Supported wallet methods
+
+| Method | Description | Since |
+|---|---|---|
+| `getAddresses` / `stx_getAddresses` | Returns STX address + public key | v0.1 |
+| `wallet_connect` | Xverse-compatible connect flow | v0.1 |
+| `stx_callContract` | Sign + broadcast contract call | v0.1 |
+| `stx_transferStx` | Sign + broadcast STX transfer | v0.1 |
+| `stx_signMessage` | Sign plaintext message | v0.2 |
+| `stx_signStructuredMessage` | Sign SIP-018 structured message | v0.2 |
+| `stx_signTransaction` | Sign raw transaction hex | v0.2 |
+
 ## Testing wallet rejections
 
 ```ts
@@ -162,23 +174,27 @@ test('handles user rejection', async ({ page, stacks }) => {
   // Trigger a transaction — the mock will reject it
   await page.getByRole('button', { name: 'Supply' }).click();
 
-  // Assert the dApp handles the rejection
-  await expect(page.getByText('Transaction Failed')).toBeVisible();
+  // Assert the dApp handles the rejection gracefully
+  // (behaviour depends on the dApp — dialog may stay open, show error, etc.)
 });
 ```
+
+Note: `rejectNext()` only applies to action methods (sign/send). Read-only methods like `getAddresses` are not affected, so the flag won't be consumed by background polling.
 
 ## Re-exports
 
 For convenience, `@satoshai/playstacks` re-exports:
 
-- **From `@stacks/transactions`**: `Cl`, `ClarityValue`, `cvToJSON`, `cvToString`, `cvToValue`
+- **From `@stacks/transactions`**: `Cl`, `ClarityValue`, `cvToJSON`, `cvToString`, `cvToValue`, `cvToHex`
 - **From `@playwright/test`**: `expect`
 
 ## How it works
 
 1. `testWithStacks()` creates a Playwright fixture that injects a mock `window.StacksProvider` and `window.XverseProviders` via `page.addInitScript()` before any page navigation
-2. When the dApp calls wallet methods (`getAddresses`, `stx_callContract`, `stx_transferStx`, etc.), the mock signs and broadcasts real transactions using your key
-3. Compatible with `@stacks/connect` v8 JSON-RPC format
+2. When the dApp calls wallet methods (`getAddresses`, `stx_callContract`, `stx_transferStx`, `stx_signMessage`, etc.), the mock signs real transactions using your key
+3. For transaction methods (`stx_callContract`, `stx_transferStx`), the signed transaction is broadcast to the network
+4. For signing-only methods (`stx_signMessage`, `stx_signStructuredMessage`, `stx_signTransaction`), the signature or signed tx is returned without broadcasting
+5. Compatible with `@stacks/connect` v8 JSON-RPC format and Xverse 3-address format
 
 ## Requirements
 

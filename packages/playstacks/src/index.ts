@@ -11,7 +11,12 @@ export {
 } from './config.js';
 export { type ReadOnlyCallOptions } from './helpers/read-only.js';
 export { type ConfirmationResult, type TxStatus } from './tx/confirmation.js';
-export { type WalletInfo } from './wallet/types.js';
+export {
+  type WalletInfo,
+  type SignMessageResult,
+  type SignStructuredMessageResult,
+  type SignTransactionResult,
+} from './wallet/types.js';
 
 // Re-export Clarity value helpers from @stacks/transactions for convenience
 export {
@@ -20,6 +25,7 @@ export {
   cvToJSON,
   cvToString,
   cvToValue,
+  cvToHex,
 } from '@stacks/transactions';
 
 // Re-export expect from Playwright for convenience

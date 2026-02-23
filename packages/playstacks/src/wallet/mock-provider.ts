@@ -4,6 +4,11 @@ import {
   hexToCV,
   serializePayloadBytes,
   PostConditionMode,
+  signMessageHashRsv,
+  signStructuredData,
+  deserializeTransaction,
+  TransactionSigner,
+  serializeTransaction,
 } from '@stacks/transactions';
 import type { Page } from '@playwright/test';
 
@@ -16,6 +21,7 @@ import {
 } from '../fees/fee-estimator.js';
 import { broadcast } from '../tx/broadcaster.js';
 import { getMockProviderScript } from './mock-provider-script.js';
+import { hashMessage } from './message-hash.js';
 import type {
   WalletIdentity,
   WalletRpcRequest,
@@ -23,6 +29,12 @@ import type {
   CallContractParams,
   GetAddressesResult,
   BroadcastResult,
+  SignMessageParams,
+  SignMessageResult,
+  SignStructuredMessageParams,
+  SignStructuredMessageResult,
+  SignTransactionParams,
+  SignTransactionResult,
 } from './types.js';
 
 export class MockProviderHandler {
@@ -77,8 +89,11 @@ export class MockProviderHandler {
     try {
       const request: WalletRpcRequest = JSON.parse(requestJson);
 
-      // Check for rejection flag
-      if (this.shouldRejectNext) {
+      // Check for rejection flag — only applies to action methods (sign/send),
+      // not read-only methods like getAddresses which dApps call in the background.
+      const isReadOnly = ['getAddresses', 'stx_getAddresses', 'wallet_connect']
+        .includes(request.method);
+      if (this.shouldRejectNext && !isReadOnly) {
         this.shouldRejectNext = false;
         return JSON.stringify({
           error: { code: 4001, message: 'User rejected the request' },
@@ -113,6 +128,16 @@ export class MockProviderHandler {
         return this.handleTransferStx(params as unknown as TransferStxParams);
       case 'stx_callContract':
         return this.handleCallContract(this.normalizeCallContractParams(params));
+      case 'stx_signMessage':
+        return this.handleSignMessage(params as unknown as SignMessageParams);
+      case 'stx_signStructuredMessage':
+        return this.handleSignStructuredMessage(
+          params as unknown as SignStructuredMessageParams
+        );
+      case 'stx_signTransaction':
+        return this.handleSignTransaction(
+          params as unknown as SignTransactionParams
+        );
       default:
         throw new Error(`Unsupported wallet method: ${method}`);
     }
@@ -146,13 +171,28 @@ export class MockProviderHandler {
   private handleGetAddresses(): GetAddressesResult {
     return {
       addresses: [
+        // Index 0: BTC payment (p2wpkh) — placeholder for Xverse compatibility
+        {
+          address: 'bc1q-placeholder-btc-payment',
+          publicKey: this.identity.publicKey,
+          purpose: 'payment',
+          addressType: 'p2wpkh',
+          symbol: 'BTC',
+        },
+        // Index 1: BTC ordinals (p2tr) — placeholder for Xverse compatibility
+        {
+          address: 'bc1p-placeholder-btc-ordinals',
+          publicKey: this.identity.publicKey,
+          purpose: 'ordinals',
+          addressType: 'p2tr',
+          symbol: 'BTC',
+        },
+        // Index 2: STX address — the real one
+        // Apps find this by: index [2], symbol === 'STX', purpose/addressType === 'stacks',
+        // or address.startsWith('S')
         {
           address: this.identity.address,
           publicKey: this.identity.publicKey,
-          // Fields needed by different consumers:
-          // - @stacks/connect: uses address string (startsWith 'S')
-          // - Zest extractAndValidateStacksAddress: checks purpose/addressType === 'stacks'
-          // - Zest extractStacksAddress: checks symbol === 'STX' or address.startsWith('S')
           purpose: 'stacks',
           addressType: 'stacks',
           symbol: 'STX',
@@ -229,5 +269,51 @@ export class MockProviderHandler {
     const result = await broadcast(transaction, this.network);
     this.lastTxId = result.txid;
     return result;
+  }
+
+  private handleSignMessage(params: SignMessageParams): SignMessageResult {
+    const messageHash = hashMessage(params.message);
+    const signature = signMessageHashRsv({
+      messageHash,
+      privateKey: this.identity.privateKey,
+    });
+    return { signature, publicKey: this.identity.publicKey };
+  }
+
+  private handleSignStructuredMessage(
+    params: SignStructuredMessageParams
+  ): SignStructuredMessageResult {
+    // Wallet sends hex without 0x prefix; hexToCV needs it
+    const domainHex = params.domain.startsWith('0x')
+      ? params.domain
+      : `0x${params.domain}`;
+    const messageHex = params.message.startsWith('0x')
+      ? params.message
+      : `0x${params.message}`;
+
+    const domain = hexToCV(domainHex);
+    const message = hexToCV(messageHex);
+
+    const signature = signStructuredData({
+      message,
+      domain,
+      privateKey: this.identity.privateKey,
+    });
+    return { signature, publicKey: this.identity.publicKey };
+  }
+
+  private handleSignTransaction(
+    params: SignTransactionParams
+  ): SignTransactionResult {
+    const txHex = params.transaction.startsWith('0x')
+      ? params.transaction
+      : `0x${params.transaction}`;
+
+    const tx = deserializeTransaction(txHex);
+    const signer = new TransactionSigner(tx);
+    signer.signOrigin(this.identity.privateKey);
+
+    const signedHex = serializeTransaction(signer.getTxInComplete());
+    return { transaction: signedHex };
   }
 }
