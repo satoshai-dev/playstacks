@@ -1,6 +1,9 @@
 {
-  "name": "playstacks",
-  "version": "0.1.1",
+  "name": "@satoshai/playstacks",
+  "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "E2E testing SDK for Stacks blockchain dApps. Playwright + real transactions.",
   "license": "MIT",
   "type": "module",

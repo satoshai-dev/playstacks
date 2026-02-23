@@ -1,4 +1,4 @@
-import { testWithStacks, expect } from 'playstacks';
+import { testWithStacks, expect } from '@satoshai/playstacks';
 
 const test = testWithStacks({
   mnemonic: process.env.TEST_MNEMONIC!,
