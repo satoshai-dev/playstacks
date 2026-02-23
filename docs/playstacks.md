@@ -126,11 +126,11 @@ test('shows error when user rejects transaction', async ({ page, stacks }) => {
 | `wallet_connect` | Xverse-compatible connect flow | ✅ v0.1 |
 | `stx_callContract` | Sign + broadcast contract call | ✅ v0.1 |
 | `stx_transferStx` | Sign + broadcast STX transfer | ✅ v0.1 |
-| `stx_signTransaction` | Sign raw transaction hex | v0.2 |
 | `stx_signMessage` | Sign plaintext message | v0.2 |
 | `stx_signStructuredMessage` | Sign typed/structured message (SIP-018) | v0.2 |
-| `stx_deployContract` | Sign + broadcast contract deployment | v0.2 |
-| `signPsbt` | Bitcoin PSBT signing | v0.3 |
+| `stx_signTransaction` | Sign raw transaction hex | v0.2 |
+| `stx_deployContract` | Sign + broadcast contract deployment | v0.3 |
+| `signPsbt` | Bitcoin PSBT signing | v0.5 |
 
 ### Wallet compatibility
 
@@ -267,12 +267,44 @@ playstacks/
 │   │   │   └── confirmation.ts       # Polls /extended/v1/tx/{txid} until confirmed
 │   │   └── helpers/
 │   │       └── read-only.ts          # callReadOnly for on-chain state verification
-│   └── tests/unit/                   # Vitest unit tests (29 tests)
-├── examples/zest-e2e/           # E2E reference implementation
-│   ├── tests/
-│   │   ├── supply.spec.ts            # Full supply flow: connect → supply → confirm
-│   │   └── rejection.spec.ts         # Wallet rejection testing
-│   └── playwright.config.ts
+│   └── tests/unit/                   # Vitest unit tests
+├── apps/test-dapp/                   # Satoshai test dApp — exercises every wallet method
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── connect.ts            # Wallet connect + address display
+│   │   │   ├── transfer.ts           # STX transfer
+│   │   │   ├── call-contract.ts      # Contract call
+│   │   │   ├── sign-message.ts       # stx_signMessage → show signature
+│   │   │   ├── sign-structured.ts    # stx_signStructuredMessage (SIP-018)
+│   │   │   ├── sign-transaction.ts   # stx_signTransaction → show signed hex
+│   │   │   ├── deploy.ts            # stx_deployContract → show txid
+│   │   │   └── multi-account.ts      # Account switching
+│   │   ├── main.ts                   # Router / page navigation
+│   │   └── style.css                 # Satoshai-branded styles
+│   ├── index.html
+│   ├── package.json                  # Vite, @stacks/connect
+│   └── vite.config.ts
+├── apps/test-dapp/tests/             # E2E specs that run against the test dApp
+│   ├── connect.spec.ts
+│   ├── transfer.spec.ts
+│   ├── call-contract.spec.ts
+│   ├── sign-message.spec.ts
+│   ├── sign-structured.spec.ts
+│   ├── sign-transaction.spec.ts
+│   ├── deploy.spec.ts
+│   ├── nonce-management.spec.ts
+│   ├── multi-account.spec.ts
+│   └── playwright.config.ts         # webServer → vite dev, network → devnet
+├── examples/
+│   ├── zest-e2e/                     # Real-world: Zest Protocol lending (mainnet)
+│   │   ├── tests/
+│   │   │   ├── supply.spec.ts
+│   │   │   └── rejection.spec.ts
+│   │   └── playwright.config.ts
+│   └── satoshai-login/               # Real-world: Satoshai message signing auth
+│       ├── tests/
+│       │   └── login.spec.ts         # Connect → sign message → authenticated
+│       └── playwright.config.ts
 ├── package.json
 ├── tsconfig.json
 ├── tsup.config.ts                     # Build: ESM + CJS + .d.ts
@@ -294,6 +326,35 @@ playstacks/
 ```
 
 No dependency on `@stacks/connect` — the mock re-implements the provider interface directly, avoiding version coupling.
+
+---
+
+## Testing Strategy
+
+Two layers of testing, combining a self-contained test dApp with real-world examples against production dApps.
+
+### Test dApp (`apps/test-dapp/`)
+
+A Satoshai-branded Vite app that lives inside the repo and exercises every wallet method Playstacks supports. Each page has a single purpose: a button that triggers a wallet method and displays the result. Playwright E2E specs run against this app.
+
+- **Self-contained** — no dependency on external dApps being up or changing their UI
+- **Grows with the library** — each version adds pages + specs for its new features
+- **Devnet-first** — transaction tests run against Clarinet devnet (free, fast blocks, pre-funded accounts)
+- **Looks good** — Satoshai-branded, clean UI. This is our showcase, not a throwaway test page
+
+| Test type | Tool | What it covers | Chain needed? |
+|---|---|---|---|
+| Unit | Vitest | Handler logic, signature correctness, nonce tracking, key derivation | No |
+| E2E (signing) | Playwright + test dApp | Full flow: dApp calls `@stacks/connect` → mock signs → result on page | No |
+| E2E (transactions) | Playwright + test dApp | Broadcast + on-chain confirmation via devnet | Clarinet devnet |
+| E2E (real-world) | Playwright + external dApp | Full flow against production dApps | Mainnet / testnet |
+
+### Real-world examples (`examples/`)
+
+Showcases against real production dApps. These prove Playstacks works in the wild, but aren't the primary test suite.
+
+- **`examples/zest-e2e/`** — Zest Protocol lending flow on mainnet (connect → supply STX → confirm on-chain)
+- **`examples/satoshai-login/`** — Satoshai message signing auth (connect → sign message → authenticated)
 
 ---
 
@@ -324,20 +385,44 @@ Core library with full E2E flow working on mainnet against Zest Protocol.
 
 **Deliverable**: Working package. Full E2E tests for Zest Protocol — connect wallet, supply STX, confirm on-chain.
 
-### v0.2 — Complete Signing (Next)
+### v0.2 — Message & Transaction Signing
 
-Full method coverage.
+Pure signing methods — no broadcasting, no devnet needed. Also ships the test dApp scaffold.
 
-- `stx_signTransaction` — sign arbitrary transaction hex
 - `stx_signMessage` — sign plaintext messages
 - `stx_signStructuredMessage` — sign SIP-018 structured messages
-- `stx_deployContract` — sign + broadcast contract deployments
-- Automatic nonce management for sequential transactions in a single test
-- Account switching mid-test (test multi-user scenarios)
+- `stx_signTransaction` — sign arbitrary transaction hex
+- Test dApp scaffold (`apps/test-dapp/`) — Satoshai-branded Vite app with pages for connect, transfer, contract call, and all three signing methods
+- E2E specs for each signing method against the test dApp
+- Unit tests for signature correctness and format validation
+- Real-world example: `examples/satoshai-login/` — message signing auth against app.satoshai.io
 
-**Deliverable**: Full Stacks signing coverage.
+**Deliverable**: Full Stacks signing coverage. Test dApp running. Satoshai login example working.
 
-### v0.3 — Bitcoin / sBTC Support
+### v0.3 — Deploy & Nonce Management
+
+Contract deployment support and automatic nonce tracking for sequential transactions.
+
+- `stx_deployContract` — sign + broadcast Clarity contract deployments
+- Automatic nonce management — sequential transactions in a single test get incrementing nonces without waiting for confirmation
+- Test dApp deploy page + E2E spec against Clarinet devnet
+- E2E spec: send 3 sequential txs in one test, all confirm on devnet
+- Devnet CI setup — Clarinet devnet in GitHub Actions for automated E2E runs
+
+**Deliverable**: Deploy + multi-tx flows work. Devnet E2E pipeline running in CI.
+
+### v0.4 — Multi-Account
+
+Test multi-user scenarios within a single test.
+
+- Account switching mid-test — change the active wallet identity without reconnecting
+- Multi-account fixtures — configure multiple wallets from a single mnemonic
+- Test dApp multi-account page + E2E spec showing two users interacting with the same contract
+- Example scenario: user A supplies STX, user B borrows against it
+
+**Deliverable**: Multi-user E2E testing. Two-sided dApp flows covered.
+
+### v0.5 — Bitcoin / sBTC Support
 
 Complete Bitcoin L1 + Stacks L2 coverage.
 
@@ -360,4 +445,4 @@ Ship it.
 - Performance: connection pooling, parallel test support
 - Community: announce on Stacks Discord, forum post, Twitter thread
 
-**Deliverable**: Published package on npm. Docs site live. Zest Protocol using it in production.
+**Deliverable**: Published package on npm. Docs site live. Production users.
