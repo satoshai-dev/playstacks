@@ -2,6 +2,7 @@
   "name": "playstacks-monorepo",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.18.3",
   "scripts": {
     "build": "pnpm --filter @satoshai/playstacks build",
     "test": "pnpm --filter @satoshai/playstacks test",
