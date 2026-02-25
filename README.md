@@ -101,7 +101,7 @@ const test = testWithStacks({
 
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — dev workflow, changesets, commit conventions, releasing
 - [`docs/understanding-playstacks.md`](docs/understanding-playstacks.md) — how it works, architecture, why it's easy
-- [`docs/playstacks.md`](docs/playstacks.md) — full technical spec and roadmap
+- [`docs/playstacks.md`](docs/playstacks.md) — full technical spec
 - [`examples/zest/`](examples/zest/) — Zest Protocol supply + withdraw (mainnet)
 - [`examples/satoshai/`](examples/satoshai/) — SatoshAI login flow (mainnet)
 - [`apps/test-dapp/`](apps/test-dapp/) — self-contained test dApp exercising all wallet methods
