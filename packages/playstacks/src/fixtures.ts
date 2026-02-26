@@ -101,7 +101,7 @@ export function testWithStacks(config: PlaystacksConfig) {
           waitForConfirmation(network, txid, resolved.confirmation, resolved.requestTimeout),
 
         callReadOnly: (options: ReadOnlyCallOptions) =>
-          callReadOnly(network, options, handler.identity.address),
+          callReadOnly(network, options, handler.identity.address, resolved.requestTimeout),
 
         getBalance: (address?: string) =>
           fetchBalance(network, address ?? handler.identity.address, resolved.requestTimeout),
