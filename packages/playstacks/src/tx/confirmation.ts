@@ -19,14 +19,15 @@ export interface ConfirmationResult {
 export async function waitForConfirmation(
   network: ResolvedNetwork,
   txid: string,
-  config: ResolvedConfig['confirmation']
+  config: ResolvedConfig['confirmation'],
+  requestTimeout?: number,
 ): Promise<ConfirmationResult> {
   const start = Date.now();
   const normalizedTxid = txid.startsWith('0x') ? txid : `0x${txid}`;
 
   while (Date.now() - start < config.timeout) {
     try {
-      const status = await fetchTransactionStatus(network, normalizedTxid);
+      const status = await fetchTransactionStatus(network, normalizedTxid, requestTimeout);
 
       if (status.tx_status !== 'pending') {
         return {

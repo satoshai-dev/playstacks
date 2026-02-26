@@ -206,7 +206,8 @@ export class MockProviderHandler {
   ): Promise<BroadcastResult> {
     const { fee: estimatedFee } = await estimateTransferFee(
       this.network,
-      this.config.fee
+      this.config.fee,
+      this.config.requestTimeout,
     );
 
     const transaction = await makeSTXTokenTransfer({
@@ -257,7 +258,8 @@ export class MockProviderHandler {
       this.network,
       this.config.fee,
       payloadBytes,
-      serializedUnsigned.length
+      serializedUnsigned.length,
+      this.config.requestTimeout,
     );
 
     // Second pass: build with correct fee and sign

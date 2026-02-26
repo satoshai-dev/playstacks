@@ -13,8 +13,15 @@ export interface TransactionStatus {
   block_height?: number;
 }
 
-async function fetchJson<T>(url: string): Promise<T> {
-  const response = await fetch(url);
+function createTimeoutSignal(timeoutMs?: number): AbortSignal | undefined {
+  if (timeoutMs === undefined || timeoutMs <= 0) return undefined;
+  return AbortSignal.timeout(timeoutMs);
+}
+
+async function fetchJson<T>(url: string, timeoutMs?: number): Promise<T> {
+  const response = await fetch(url, {
+    signal: createTimeoutSignal(timeoutMs),
+  });
   if (!response.ok) {
     const body = await response.text().catch(() => '');
     throw new NetworkError(
@@ -29,41 +36,48 @@ async function fetchJson<T>(url: string): Promise<T> {
 
 export async function fetchAccountInfo(
   network: ResolvedNetwork,
-  address: string
+  address: string,
+  timeoutMs?: number,
 ): Promise<AccountInfo> {
-  return fetchJson<AccountInfo>(`${network.apiUrl}/v2/accounts/${address}?proof=0`);
+  return fetchJson<AccountInfo>(`${network.apiUrl}/v2/accounts/${address}?proof=0`, timeoutMs);
 }
 
 export async function fetchBalance(
   network: ResolvedNetwork,
-  address: string
+  address: string,
+  timeoutMs?: number,
 ): Promise<bigint> {
-  const info = await fetchAccountInfo(network, address);
+  const info = await fetchAccountInfo(network, address, timeoutMs);
   return BigInt(info.balance);
 }
 
 export async function fetchNonce(
   network: ResolvedNetwork,
-  address: string
+  address: string,
+  timeoutMs?: number,
 ): Promise<bigint> {
-  const info = await fetchAccountInfo(network, address);
+  const info = await fetchAccountInfo(network, address, timeoutMs);
   return BigInt(info.nonce);
 }
 
 export async function fetchTransactionStatus(
   network: ResolvedNetwork,
-  txid: string
+  txid: string,
+  timeoutMs?: number,
 ): Promise<TransactionStatus> {
   return fetchJson<TransactionStatus>(
-    `${network.apiUrl}/extended/v1/tx/${txid}`
+    `${network.apiUrl}/extended/v1/tx/${txid}`,
+    timeoutMs,
   );
 }
 
 export async function fetchTransferFeeRate(
-  network: ResolvedNetwork
+  network: ResolvedNetwork,
+  timeoutMs?: number,
 ): Promise<bigint> {
   const result = await fetchJson<{ fee_rate: number }>(
-    `${network.apiUrl}/v2/fees/transfer`
+    `${network.apiUrl}/v2/fees/transfer`,
+    timeoutMs,
   );
   return BigInt(result.fee_rate);
 }
@@ -78,7 +92,8 @@ export interface FeeEstimation {
 export async function fetchTransactionFeeEstimate(
   network: ResolvedNetwork,
   transactionPayloadHex: string,
-  estimatedLen: number
+  estimatedLen: number,
+  timeoutMs?: number,
 ): Promise<FeeEstimation> {
   const response = await fetch(`${network.apiUrl}/v2/fees/transaction`, {
     method: 'POST',
@@ -87,6 +102,7 @@ export async function fetchTransactionFeeEstimate(
       transaction_payload: transactionPayloadHex,
       estimated_len: estimatedLen,
     }),
+    signal: createTimeoutSignal(timeoutMs),
   });
 
   if (!response.ok) {

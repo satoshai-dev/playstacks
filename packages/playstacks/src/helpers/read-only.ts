@@ -32,7 +32,8 @@ export type ReadOnlyCallOptions = ReadOnlyCallWithContract | ReadOnlyCallWithSpl
 export async function callReadOnly(
   network: ResolvedNetwork,
   options: ReadOnlyCallOptions,
-  defaultSenderAddress: string
+  defaultSenderAddress: string,
+  timeoutMs?: number,
 ): Promise<ClarityValue> {
   let contractAddress: string;
   let contractName: string;
@@ -46,7 +47,7 @@ export async function callReadOnly(
     contractName = (options as ReadOnlyCallWithSplit).contractName;
   }
 
-  const result = await fetchCallReadOnlyFunction({
+  const fetchPromise = fetchCallReadOnlyFunction({
     contractAddress,
     contractName,
     functionName: options.functionName,
@@ -55,5 +56,14 @@ export async function callReadOnly(
     senderAddress: options.senderAddress ?? defaultSenderAddress,
   });
 
-  return result;
+  if (timeoutMs === undefined || timeoutMs <= 0) {
+    return fetchPromise;
+  }
+
+  return Promise.race([
+    fetchPromise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`Read-only call timed out after ${timeoutMs}ms`)), timeoutMs)
+    ),
+  ]);
 }

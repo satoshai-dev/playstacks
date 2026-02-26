@@ -98,16 +98,16 @@ export function testWithStacks(config: PlaystacksConfig) {
         },
 
         waitForTx: (txid: string) =>
-          waitForConfirmation(network, txid, resolved.confirmation),
+          waitForConfirmation(network, txid, resolved.confirmation, resolved.requestTimeout),
 
         callReadOnly: (options: ReadOnlyCallOptions) =>
-          callReadOnly(network, options, handler.identity.address),
+          callReadOnly(network, options, handler.identity.address, resolved.requestTimeout),
 
         getBalance: (address?: string) =>
-          fetchBalance(network, address ?? handler.identity.address),
+          fetchBalance(network, address ?? handler.identity.address, resolved.requestTimeout),
 
         getNonce: (address?: string) =>
-          fetchNonce(network, address ?? handler.identity.address),
+          fetchNonce(network, address ?? handler.identity.address, resolved.requestTimeout),
       };
 
       await use(fixture);
