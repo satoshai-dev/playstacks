@@ -18,13 +18,14 @@ export interface EstimatedFee {
  */
 export async function estimateTransferFee(
   network: ResolvedNetwork,
-  feeConfig: ResolvedConfig['fee']
+  feeConfig: ResolvedConfig['fee'],
+  timeoutMs?: number,
 ): Promise<EstimatedFee> {
   if (feeConfig.fixed !== undefined) {
     return { fee: BigInt(feeConfig.fixed), source: 'fixed' };
   }
 
-  const feeRate = await fetchTransferFeeRate(network);
+  const feeRate = await fetchTransferFeeRate(network, timeoutMs);
   const rawFee = feeRate; // fee_rate is already in microstacks for transfers
   const adjusted = BigInt(Math.ceil(Number(rawFee) * feeConfig.multiplier));
   const maxFee = BigInt(feeConfig.maxFee);
@@ -50,7 +51,8 @@ export async function estimateContractCallFee(
   network: ResolvedNetwork,
   feeConfig: ResolvedConfig['fee'],
   serializedPayload: Uint8Array,
-  estimatedLen: number
+  estimatedLen: number,
+  timeoutMs?: number,
 ): Promise<EstimatedFee> {
   if (feeConfig.fixed !== undefined) {
     return { fee: BigInt(feeConfig.fixed), source: 'fixed' };
@@ -60,7 +62,8 @@ export async function estimateContractCallFee(
   const estimation = await fetchTransactionFeeEstimate(
     network,
     payloadHex,
-    estimatedLen
+    estimatedLen,
+    timeoutMs,
   );
 
   // Use the middle tier estimation (index 1) if available, else first

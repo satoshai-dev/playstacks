@@ -29,6 +29,8 @@ interface BaseConfig {
   fee?: FeeConfig;
   /** Tx confirmation config */
   confirmation?: ConfirmationConfig;
+  /** Request timeout in ms for API calls. Default: 30_000 (30s) */
+  requestTimeout?: number;
 }
 
 export interface PrivateKeyConfig extends BaseConfig {
@@ -53,6 +55,7 @@ export interface ResolvedConfig {
   network: NetworkOption;
   fee: Required<Omit<FeeConfig, 'fixed'>> & Pick<FeeConfig, 'fixed'>;
   confirmation: Required<ConfirmationConfig>;
+  requestTimeout: number;
 }
 
 const DEFAULT_FEE: ResolvedConfig['fee'] = {
@@ -85,6 +88,7 @@ export function resolveConfig(config: PlaystacksConfig, derivedPrivateKey?: stri
       ...DEFAULT_CONFIRMATION,
       ...config.confirmation,
     },
+    requestTimeout: config.requestTimeout ?? 30_000,
   };
 }
 
