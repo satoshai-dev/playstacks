@@ -1,4 +1,5 @@
 import type { NetworkOption } from '../config.js';
+import { ConfigurationError } from '../errors.js';
 
 export interface ResolvedNetwork {
   /** Human-readable name */
@@ -31,7 +32,7 @@ export function resolveNetwork(option: NetworkOption): ResolvedNetwork {
   if (typeof option === 'string') {
     const network = NETWORK_MAP[option];
     if (!network) {
-      throw new Error(
+      throw new ConfigurationError(
         `Unknown network "${option}". Use "mainnet", "testnet", "devnet", or { url: "..." }.`
       );
     }

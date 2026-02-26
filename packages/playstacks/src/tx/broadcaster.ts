@@ -3,6 +3,7 @@ import {
   type StacksTransactionWire,
 } from '@stacks/transactions';
 import type { ResolvedNetwork } from '../network/network-config.js';
+import { BroadcastError } from '../errors.js';
 
 export interface BroadcastResult {
   txid: string;
@@ -31,5 +32,5 @@ export async function broadcast(
   }
 
   const errorStr = JSON.stringify(result);
-  throw new Error(`Transaction broadcast failed: ${errorStr}`);
+  throw new BroadcastError(`Transaction broadcast failed: ${errorStr}`, errorStr);
 }

@@ -1,6 +1,7 @@
 import type { ResolvedConfig } from '../config.js';
 import type { ResolvedNetwork } from '../network/network-config.js';
 import { fetchTransactionStatus } from '../network/api-client.js';
+import { ConfirmationError } from '../errors.js';
 
 /** Terminal transaction status on the Stacks network */
 export type TxStatus = 'success' | 'abort_by_response' | 'abort_by_post_condition';
@@ -41,8 +42,10 @@ export async function waitForConfirmation(
     await sleep(config.pollInterval);
   }
 
-  throw new Error(
-    `Transaction ${normalizedTxid} did not confirm within ${config.timeout}ms`
+  throw new ConfirmationError(
+    `Transaction ${normalizedTxid} did not confirm within ${config.timeout}ms`,
+    normalizedTxid,
+    config.timeout,
   );
 }
 
