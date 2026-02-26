@@ -66,6 +66,15 @@ describe('custom error types', () => {
     expect(err.message).toBe('Unknown network "foo"');
   });
 
+  it('errors support cause chaining via ErrorOptions', () => {
+    const cause = new Error('original fetch error');
+    const err = new NetworkError('API error', 500, '/v2/info', undefined, { cause });
+    expect(err.cause).toBe(cause);
+
+    const configErr = new ConfigurationError('bad key', { cause });
+    expect(configErr.cause).toBe(cause);
+  });
+
   it('errors can be caught by base class', () => {
     const errors = [
       new NetworkError('net', 500, '/'),

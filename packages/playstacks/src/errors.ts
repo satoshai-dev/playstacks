@@ -17,8 +17,9 @@ export class NetworkError extends PlaystacksError {
     statusCode: number,
     url: string,
     responseBody?: string,
+    options?: ErrorOptions,
   ) {
-    super(message);
+    super(message, options);
     this.name = 'NetworkError';
     this.statusCode = statusCode;
     this.url = url;
@@ -35,8 +36,9 @@ export class FeeEstimationError extends PlaystacksError {
     message: string,
     statusCode?: number,
     responseBody?: string,
+    options?: ErrorOptions,
   ) {
-    super(message);
+    super(message, options);
     this.name = 'FeeEstimationError';
     this.statusCode = statusCode;
     this.responseBody = responseBody;
@@ -47,8 +49,8 @@ export class FeeEstimationError extends PlaystacksError {
 export class BroadcastError extends PlaystacksError {
   readonly reason?: string;
 
-  constructor(message: string, reason?: string) {
-    super(message);
+  constructor(message: string, reason?: string, options?: ErrorOptions) {
+    super(message, options);
     this.name = 'BroadcastError';
     this.reason = reason;
   }
@@ -59,8 +61,8 @@ export class ConfirmationError extends PlaystacksError {
   readonly txid: string;
   readonly timeoutMs: number;
 
-  constructor(message: string, txid: string, timeoutMs: number) {
-    super(message);
+  constructor(message: string, txid: string, timeoutMs: number, options?: ErrorOptions) {
+    super(message, options);
     this.name = 'ConfirmationError';
     this.txid = txid;
     this.timeoutMs = timeoutMs;
@@ -71,8 +73,8 @@ export class ConfirmationError extends PlaystacksError {
 export class UserRejectionError extends PlaystacksError {
   readonly code: number;
 
-  constructor(message = 'User rejected the request', code = 4001) {
-    super(message);
+  constructor(message = 'User rejected the request', code = 4001, options?: ErrorOptions) {
+    super(message, options);
     this.name = 'UserRejectionError';
     this.code = code;
   }
@@ -80,8 +82,8 @@ export class UserRejectionError extends PlaystacksError {
 
 /** Thrown when configuration is invalid (missing key, unknown network, bad key length). */
 export class ConfigurationError extends PlaystacksError {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
     this.name = 'ConfigurationError';
   }
 }
