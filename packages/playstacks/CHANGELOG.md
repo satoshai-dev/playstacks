@@ -1,5 +1,25 @@
 # @satoshai/playstacks
 
+## 0.3.0
+
+### Minor Changes
+
+- aac68c0: Add automatic nonce management for sequential transactions
+
+  Introduces a `NonceTracker` that fetches the initial nonce from the chain and increments it locally after each broadcast, allowing multiple transactions to be sent in a single test without waiting for each to confirm. Nonce tracking resets automatically between tests.
+
+- e96d035: Support Playwright config-level Stacks settings
+
+  Adds `PlaystacksOptions` that can be set in `playwright.config.ts`'s `use` block (`stacksPrivateKey`, `stacksNetwork`, `stacksFeeMultiplier`, etc.), eliminating the need to repeat config in every test file. File-level `testWithStacks()` overrides still take precedence.
+
+- e3277ee: Add custom error types for programmatic error handling
+
+  Introduces a typed error hierarchy (`PlaystacksError`, `NetworkError`, `BroadcastError`, `ConfirmationError`, `UserRejectionError`, `ConfigurationError`, `FeeEstimationError`) so consumers can catch specific errors with `instanceof` checks instead of parsing error message strings.
+
+- af774cd: Add configurable request timeouts for all Stacks API calls
+
+  All HTTP requests now use `AbortSignal.timeout()` with a configurable `requestTimeout` option (default 30s). This prevents tests from hanging indefinitely when the Stacks API is slow or unresponsive.
+
 ## 0.2.0
 
 ### Minor Changes
