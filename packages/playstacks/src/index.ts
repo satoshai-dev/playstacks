@@ -1,6 +1,15 @@
 // Public API
 export { testWithStacks, type StacksFixture, type StacksFixtures } from './fixtures.js';
 export {
+  PlaystacksError,
+  NetworkError,
+  FeeEstimationError,
+  BroadcastError,
+  ConfirmationError,
+  UserRejectionError,
+  ConfigurationError,
+} from './errors.js';
+export {
   type PlaystacksConfig,
   type PrivateKeyConfig,
   type MnemonicConfig,

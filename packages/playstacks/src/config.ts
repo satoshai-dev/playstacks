@@ -1,3 +1,5 @@
+import { ConfigurationError } from './errors.js';
+
 export type NetworkName = 'mainnet' | 'testnet' | 'devnet';
 
 export interface CustomNetwork {
@@ -71,7 +73,7 @@ export function resolveConfig(config: PlaystacksConfig, derivedPrivateKey?: stri
     : derivedPrivateKey;
 
   if (!privateKey) {
-    throw new Error('No private key available. Provide privateKey or mnemonic.');
+    throw new ConfigurationError('No private key available. Provide privateKey or mnemonic.');
   }
 
   return {

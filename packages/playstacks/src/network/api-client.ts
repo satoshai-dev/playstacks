@@ -1,4 +1,5 @@
 import type { ResolvedNetwork } from './network-config.js';
+import { NetworkError, FeeEstimationError } from '../errors.js';
 
 export interface AccountInfo {
   balance: string;
@@ -16,7 +17,12 @@ async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) {
     const body = await response.text().catch(() => '');
-    throw new Error(`Stacks API error ${response.status}: ${url}\n${body}`);
+    throw new NetworkError(
+      `Stacks API error ${response.status}: ${url}`,
+      response.status,
+      url,
+      body || undefined,
+    );
   }
   return response.json() as Promise<T>;
 }
@@ -85,7 +91,11 @@ export async function fetchTransactionFeeEstimate(
 
   if (!response.ok) {
     const body = await response.text().catch(() => '');
-    throw new Error(`Fee estimation failed ${response.status}: ${body}`);
+    throw new FeeEstimationError(
+      `Fee estimation failed ${response.status}`,
+      response.status,
+      body || undefined,
+    );
   }
 
   return response.json() as Promise<FeeEstimation>;

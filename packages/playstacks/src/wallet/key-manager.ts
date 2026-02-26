@@ -6,6 +6,7 @@ import {
 } from '@stacks/transactions';
 import { generateWallet, generateNewAccount } from '@stacks/wallet-sdk';
 import type { WalletIdentity } from './types.js';
+import { ConfigurationError } from '../errors.js';
 
 /**
  * Normalize a private key hex string.
@@ -16,7 +17,7 @@ function normalizePrivateKey(key: string): string {
   const hex = key.startsWith('0x') ? key.slice(2) : key;
   // Validate length: 64 chars (32 bytes) or 66 chars (32 bytes + 01 suffix)
   if (hex.length !== 64 && hex.length !== 66) {
-    throw new Error(
+    throw new ConfigurationError(
       `Invalid private key length: expected 64 or 66 hex chars, got ${hex.length}`
     );
   }
