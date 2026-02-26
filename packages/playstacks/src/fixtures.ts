@@ -84,6 +84,9 @@ export function testWithStacks(config: PlaystacksConfig) {
       const resolved = await resolvedConfigPromise;
       const handler = new MockProviderHandler(resolved);
 
+      // Reset nonce tracking for each test to avoid stale nonces
+      handler.resetNonce();
+
       // Install the mock provider before any navigation
       await handler.install(page);
 

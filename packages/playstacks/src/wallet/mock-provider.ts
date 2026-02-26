@@ -22,6 +22,7 @@ import {
 import { broadcast } from '../tx/broadcaster.js';
 import { getMockProviderScript } from './mock-provider-script.js';
 import { hashMessage } from './message-hash.js';
+import { NonceTracker } from './nonce-tracker.js';
 import type {
   WalletIdentity,
   WalletRpcRequest,
@@ -41,6 +42,7 @@ export class MockProviderHandler {
   readonly identity: WalletIdentity;
   readonly network: ResolvedNetwork;
   private readonly config: ResolvedConfig;
+  private readonly nonceTracker: NonceTracker;
   private shouldRejectNext = false;
   /** Last broadcast transaction ID, set after successful broadcast */
   lastTxId: string | null = null;
@@ -51,6 +53,12 @@ export class MockProviderHandler {
 
     const isMainnet = this.network.stacksNetwork === 'mainnet';
     this.identity = deriveWalletIdentity(config.privateKey, isMainnet);
+    this.nonceTracker = new NonceTracker(this.network, this.identity.address);
+  }
+
+  /** Reset nonce tracking. Call between tests to avoid stale nonces. */
+  resetNonce(): void {
+    this.nonceTracker.reset();
   }
 
   /**
@@ -209,16 +217,20 @@ export class MockProviderHandler {
       this.config.fee
     );
 
+    const nonce = await this.nonceTracker.getNextNonce();
+
     const transaction = await makeSTXTokenTransfer({
       recipient: params.recipient,
       amount: BigInt(params.amount),
       senderKey: this.identity.privateKey,
       network: this.network.stacksNetwork,
       fee: estimatedFee,
+      nonce,
       memo: params.memo,
     });
 
     const result = await broadcast(transaction, this.network);
+    this.nonceTracker.increment();
     this.lastTxId = result.txid;
     return result;
   }
@@ -244,10 +256,13 @@ export class MockProviderHandler {
       postConditions: params.postConditions,
     };
 
+    const nonce = await this.nonceTracker.getNextNonce();
+
     // First pass: build unsigned tx to estimate fee
     const unsignedTx = await makeContractCall({
       ...commonOpts,
       fee: 0n,
+      nonce,
     });
 
     // Estimate fee using the serialized payload
@@ -264,9 +279,11 @@ export class MockProviderHandler {
     const transaction = await makeContractCall({
       ...commonOpts,
       fee: estimatedFee,
+      nonce,
     });
 
     const result = await broadcast(transaction, this.network);
+    this.nonceTracker.increment();
     this.lastTxId = result.txid;
     return result;
   }
