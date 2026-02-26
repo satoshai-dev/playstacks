@@ -1,5 +1,11 @@
 // Public API
-export { testWithStacks, type StacksFixture, type StacksFixtures } from './fixtures.js';
+export {
+  test,
+  testWithStacks,
+  type StacksFixture,
+  type StacksFixtures,
+  type PlaystacksOptions,
+} from './fixtures.js';
 export {
   PlaystacksError,
   NetworkError,
